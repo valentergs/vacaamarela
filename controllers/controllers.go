@@ -60,6 +60,9 @@ func (c Controller) Login(db *sql.DB) http.HandlerFunc {
 		}
 
 		jwt.Token = token
+
+		w.Header().Set("Content-Type", "application/json")
+
 		utils.ResponseJSON(w, jwt)
 
 	}
