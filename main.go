@@ -22,7 +22,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/login", controller.Login(db)).Methods("POST")
 	// router.HandleFunc("/logged", controller.Logged(db)).Methods("GET")
-	// router.HandleFunc("/usuario/add", controller.UsuarioAdd(db)).Methods("POST")
+	router.HandleFunc("/usuario/inserir", controller.InserirUsuario(db)).Methods("POST")
 	// //router.HandleFunc("/usuario", middlewares.TokenVerifyMiddleware(controller.UsuarioGetAll(db))).Methods("GET")
 	// router.HandleFunc("/usuario", controller.UsuarioGetAll(db)).Methods("GET")
 	// //router.HandleFunc("/usuario/{id}", middlewares.TokenVerifyMiddleware(controller.UsuarioGetOne(db))).Methods("GET")

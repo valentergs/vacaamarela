@@ -29,7 +29,7 @@ func GenerateToken(usuario models.Usuario) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": usuario.Email,
-		"iss":   "crmplus",
+		"iss":   "vacaamarela",
 	})
 
 	tokenString, err := token.SignedString([]byte(secret))
