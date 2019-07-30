@@ -1,6 +1,9 @@
 package driver
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 var db *sql.DB
 
@@ -9,7 +12,16 @@ func ConnectDB() *sql.DB {
 
 	var err error
 
-	db, err = sql.Open("postgres", "user=rodrigovalente password=Gustavo2012 host=localhost port=5432 dbname=vacaamarela sslmode=disable")
+	const (
+		user     = "rodrigovalente"
+		password = "Gustavo2012"
+		host     = "localhost"
+		port     = 5432
+		dbname   = "vacaamarela"
+	)
+
+	psqlInfo := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", user, password, host, port, dbname)
+	db, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}

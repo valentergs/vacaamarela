@@ -14,7 +14,7 @@ import (
 //Controller será exportado
 type Controller struct{}
 
-//Login será exportado
+//Login será exportado ============================================
 func (c Controller) Login(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -69,8 +69,8 @@ func (c Controller) Login(db *sql.DB) http.HandlerFunc {
 
 }
 
-//InserirUsuario será exportado
-func (c Controller) InserirUsuario(db *sql.DB) http.HandlerFunc {
+//UsuarioInserir será exportado ===========================================
+func (c Controller) UsuarioInserir(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -95,6 +95,9 @@ func (c Controller) InserirUsuario(db *sql.DB) http.HandlerFunc {
 
 		row := db.QueryRow("SELECT * FROM usuario WHERE email=$1;", usuario.Email)
 		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.CEP, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+		if err != nil {
+			panic(err)
+		}
 
 		// Esconder usuario.Senha
 		usuario.Senha = "********"
@@ -103,5 +106,52 @@ func (c Controller) InserirUsuario(db *sql.DB) http.HandlerFunc {
 
 		utils.ResponseJSON(w, usuario)
 
+	}
+}
+
+//UsuarioTodos will be exported =======================================
+func (c Controller) UsuarioTodos(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var error models.Error
+
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		rows, err := db.Query("select * from usuario")
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+
+		defer rows.Close()
+
+		clts := make([]models.Usuario, 0)
+		for rows.Next() {
+			clt := models.Usuario{}
+			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Email, &clt.Senha, &clt.CPF, &clt.CEP, &clt.Endereco, &clt.Cidade, &clt.Estado, &clt.Celular, &clt.Superuser, &clt.Ativo)
+			if err != nil {
+				http.Error(w, http.StatusText(500), 500)
+				return
+			}
+			clts = append(clts, clt)
+		}
+		if err != nil {
+			if err == sql.ErrNoRows {
+				error.Message = "Usuário inexistente"
+				utils.RespondWithError(w, http.StatusBadRequest, error)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		utils.ResponseJSON(w, clts)
 	}
 }
