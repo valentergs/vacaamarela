@@ -192,6 +192,9 @@ func (c Controller) UsuarioUnico(db *sql.DB) http.HandlerFunc {
 			}
 		}
 
+		// Esconder usuario.Senha
+		usuario.Senha = "********"
+
 		w.Header().Set("Content-Type", "application/json")
 		utils.ResponseJSON(w, usuario)
 
@@ -224,6 +227,43 @@ func (c Controller) UsuarioApagar(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		utils.ResponseJSON(w, SuccessMessage)
+
+	}
+}
+
+//UsuarioEditar will be exported =========================================
+func (c Controller) UsuarioEditar(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var usuario models.Usuario
+		var error models.Error
+
+		if r.Method != "PUT" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
+
+		json.NewDecoder(r.Body).Decode(&usuario)
+
+		expressaoSQL := `UPDATE usuario SET nome=$1, sobrenome=$2, email=$3, senha=$4, cpf=$5, cep=$6, endereco=$7, cidade=$8, estado=$9, celular=$10, superuser=$11, ativo=$12 WHERE usuario_id=$13;`
+		_, err = db.Exec(expressaoSQL, usuario.Nome, usuario.Sobrenome, usuario.Email, usuario.Senha, usuario.CPF, usuario.CEP, usuario.Endereco, usuario.Cidade, usuario.Estado, usuario.Celular, usuario.Superuser, usuario.Ativo, id)
+		if err != nil {
+			panic(err)
+		}
+
+		row := db.QueryRow("select * from usuario where email=$1;", usuario.Email)
+		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.CEP, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+
+		w.Header().Set("Content-Type", "application/json")
+
+		utils.ResponseJSON(w, usuario)
 
 	}
 }

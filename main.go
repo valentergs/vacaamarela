@@ -29,7 +29,7 @@ func main() {
 	router.HandleFunc("/usuario/{id}", controller.UsuarioUnico(db)).Methods("GET")
 	// router.HandleFunc("/search/usuario", controller.Search(db)).Methods("GET").Queries("q", "{q}")
 	router.HandleFunc("/usuario/apagar/{id}", controller.UsuarioApagar(db)).Methods("DELETE")
-	// router.HandleFunc("/usuario/edit/{id}", controller.UsuarioUpdate(db)).Methods("PUT")
+	router.HandleFunc("/usuario/editar/{id}", controller.UsuarioEditar(db)).Methods("PUT")
 
 	// c := cors.New(cors.Options{
 	// 	AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
