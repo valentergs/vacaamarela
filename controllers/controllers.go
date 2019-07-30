@@ -197,3 +197,33 @@ func (c Controller) UsuarioUnico(db *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+//UsuarioApagar será exportado =========================================
+func (c Controller) UsuarioApagar(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var error models.Error
+
+		if r.Method != "DELETE" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Params são os valores informados pelo usuario no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
+
+		db.QueryRow("DELETE FROM usuario where usuario_id=$1;", id)
+
+		SuccessMessage := "Usuário deletado com sucesso!"
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		utils.ResponseJSON(w, SuccessMessage)
+
+	}
+}
