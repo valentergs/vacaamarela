@@ -26,7 +26,7 @@ func main() {
 	// //router.HandleFunc("/usuario", middlewares.TokenVerifyMiddleware(controller.UsuarioGetAll(db))).Methods("GET")
 	router.HandleFunc("/usuario", controller.UsuarioTodos(db)).Methods("GET")
 	// //router.HandleFunc("/usuario/{id}", middlewares.TokenVerifyMiddleware(controller.UsuarioGetOne(db))).Methods("GET")
-	// router.HandleFunc("/usuario/{id}", controller.UsuarioGetOne(db)).Methods("GET")
+	router.HandleFunc("/usuario/{id}", controller.UsuarioUnico(db)).Methods("GET")
 	// router.HandleFunc("/search/usuario", controller.Search(db)).Methods("GET").Queries("q", "{q}")
 	// router.HandleFunc("/usuario/delete/{id}", controller.UsuarioDeleteOne(db)).Methods("DELETE")
 	// router.HandleFunc("/usuario/edit/{id}", controller.UsuarioUpdate(db)).Methods("PUT")

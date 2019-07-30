@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/user/vacaamarela/models"
 	"github.com/user/vacaamarela/utils"
 	"golang.org/x/crypto/bcrypt"
@@ -109,7 +111,7 @@ func (c Controller) UsuarioInserir(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-//UsuarioTodos will be exported =======================================
+//UsuarioTodos será exportado =======================================
 func (c Controller) UsuarioTodos(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -153,5 +155,45 @@ func (c Controller) UsuarioTodos(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		utils.ResponseJSON(w, clts)
+	}
+}
+
+//UsuarioUnico será exportado ==================================
+func (c Controller) UsuarioUnico(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var error models.Error
+		var usuario models.Usuario
+
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Params são os valores informados pelo usuario no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
+
+		// O ID usaso neste argumento traz o valor inserido no Params
+		row := db.QueryRow("select * from usuario where usuario_id=$1;", id)
+
+		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.CEP, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				error.Message = "Usuário inexistente"
+				utils.RespondWithError(w, http.StatusBadRequest, error)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		utils.ResponseJSON(w, usuario)
+
 	}
 }
