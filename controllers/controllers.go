@@ -3,10 +3,13 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/user/vacaamarela/models"
 	"github.com/user/vacaamarela/utils"
@@ -16,10 +19,21 @@ import (
 //Controller será exportado
 type Controller struct{}
 
+//Claims será exportado
+type Claims struct {
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
+
 //Login será exportado ============================================
 func (c Controller) Login(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method != "POST" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
 
 		var usuario models.Usuario
 		var jwt models.JWT
@@ -71,6 +85,70 @@ func (c Controller) Login(db *sql.DB) http.HandlerFunc {
 
 }
 
+//Logado será exportado =====================================
+func (c Controller) Logado(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var erro models.Error
+		var usuario models.Usuario
+		var jwtKey = []byte("secret")
+
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		// this header should have a key/value pair called "Authorization". "authHeader" will grab the key
+		authHeader := r.Header.Get("Authorization")
+		// bearerToken will remove the empty space found on the value
+		bearerToken := strings.Split(authHeader, " ")
+		// here we catch the value of bearerToken[1] leaving the word "bearer" out.
+		authToken := bearerToken[1]
+
+		// Initialize a new instance of `Claims`
+		claims := &Claims{}
+
+		tkn, err := jwt.ParseWithClaims(authToken, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+
+		if !tkn.Valid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		row := db.QueryRow("select * from usuario where email=$1;", claims.Email)
+		// err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Senha, &usuario.Email, &usuario.Celular, &usuario.Superuser, &usuario.Ativo, &usuario.Departamento)
+		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.CEP, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+		if err != nil {
+			fmt.Println(err)
+			if err == sql.ErrNoRows {
+				erro.Message = "Usuário inexistente"
+				utils.RespondWithError(w, http.StatusBadRequest, erro)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+
+		utils.ResponseJSON(w, usuario)
+		fmt.Println(usuario)
+
+	}
+}
+
 //UsuarioInserir será exportado ===========================================
 func (c Controller) UsuarioInserir(db *sql.DB) http.HandlerFunc {
 
@@ -89,14 +167,14 @@ func (c Controller) UsuarioInserir(db *sql.DB) http.HandlerFunc {
 		// Usar hash em usuario.Senha
 		usuario.Senha = string(hash)
 
-		expressaoSQL := `INSERT INTO usuario (nome, sobrenome, email, senha, cpf, cep, endereco, cidade, estado, celular, superuser, ativo) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);`
-		_, err = db.Exec(expressaoSQL, usuario.Nome, usuario.Sobrenome, usuario.Email, usuario.Senha, usuario.CPF, usuario.CEP, usuario.Endereco, usuario.Cidade, usuario.Estado, usuario.Celular, usuario.Superuser, usuario.Ativo)
+		expressaoSQL := `INSERT INTO usuario (nome, sobrenome, email, senha, cpf, endereco, cidade, estado, cep, celular, superuser, ativo) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);`
+		_, err = db.Exec(expressaoSQL, usuario.Nome, usuario.Sobrenome, usuario.Email, usuario.Senha, usuario.CPF, usuario.Endereco, usuario.Cidade, usuario.Estado, usuario.CEP, usuario.Celular, usuario.Superuser, usuario.Ativo)
 		if err != nil {
 			panic(err)
 		}
 
 		row := db.QueryRow("SELECT * FROM usuario WHERE email=$1;", usuario.Email)
-		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.CEP, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, usuario.CEP, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
 		if err != nil {
 			panic(err)
 		}
@@ -134,7 +212,7 @@ func (c Controller) UsuarioTodos(db *sql.DB) http.HandlerFunc {
 		clts := make([]models.Usuario, 0)
 		for rows.Next() {
 			clt := models.Usuario{}
-			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Email, &clt.Senha, &clt.CPF, &clt.CEP, &clt.Endereco, &clt.Cidade, &clt.Estado, &clt.Celular, &clt.Superuser, &clt.Ativo)
+			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Email, &clt.Senha, &clt.CPF, &clt.Endereco, &clt.Cidade, &clt.Estado, &clt.CEP, &clt.Celular, &clt.Superuser, &clt.Ativo)
 			if err != nil {
 				http.Error(w, http.StatusText(500), 500)
 				return
@@ -181,7 +259,7 @@ func (c Controller) UsuarioUnico(db *sql.DB) http.HandlerFunc {
 		// O ID usaso neste argumento traz o valor inserido no Params
 		row := db.QueryRow("select * from usuario where usuario_id=$1;", id)
 
-		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.CEP, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.CEP, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				error.Message = "Usuário inexistente"
@@ -231,7 +309,7 @@ func (c Controller) UsuarioApagar(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-//UsuarioEditar will be exported =========================================
+//UsuarioEditar será exportado =========================================
 func (c Controller) UsuarioEditar(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -252,14 +330,14 @@ func (c Controller) UsuarioEditar(db *sql.DB) http.HandlerFunc {
 
 		json.NewDecoder(r.Body).Decode(&usuario)
 
-		expressaoSQL := `UPDATE usuario SET nome=$1, sobrenome=$2, email=$3, senha=$4, cpf=$5, cep=$6, endereco=$7, cidade=$8, estado=$9, celular=$10, superuser=$11, ativo=$12 WHERE usuario_id=$13;`
-		_, err = db.Exec(expressaoSQL, usuario.Nome, usuario.Sobrenome, usuario.Email, usuario.Senha, usuario.CPF, usuario.CEP, usuario.Endereco, usuario.Cidade, usuario.Estado, usuario.Celular, usuario.Superuser, usuario.Ativo, id)
+		expressaoSQL := `UPDATE usuario SET nome=$1, sobrenome=$2, email=$3, cpf=$4, endereco=$5, cidade=$6, estado=$7, cep=$8, celular=$9, superuser=$10, ativo=$11 WHERE usuario_id=$12;`
+		_, err = db.Exec(expressaoSQL, usuario.Nome, usuario.Sobrenome, usuario.Email, usuario.CPF, usuario.Endereco, usuario.Cidade, usuario.Estado, usuario.CEP, usuario.Celular, usuario.Superuser, usuario.Ativo, id)
 		if err != nil {
 			panic(err)
 		}
 
 		row := db.QueryRow("select * from usuario where email=$1;", usuario.Email)
-		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.CEP, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
+		err = row.Scan(&usuario.ID, &usuario.Nome, &usuario.Sobrenome, &usuario.Email, &usuario.Senha, &usuario.CPF, &usuario.Endereco, &usuario.Cidade, &usuario.Estado, &usuario.CEP, &usuario.Celular, &usuario.Superuser, &usuario.Ativo)
 
 		w.Header().Set("Content-Type", "application/json")
 

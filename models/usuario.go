@@ -8,10 +8,10 @@ type Usuario struct {
 	Email     string `json:"email"`
 	Senha     string `json:"senha"`
 	CPF       string `json:"cpf"`
-	CEP       string `json:"cep"`
 	Endereco  string `json:"endereco"`
 	Cidade    string `json:"cidade"`
 	Estado    string `json:"estado"`
+	CEP       string `json:"cep"`
 	Celular   string `json:"celular"`
 	Superuser bool   `json:"superuser"`
 	Ativo     bool   `json:"ativo"`
