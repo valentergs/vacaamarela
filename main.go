@@ -39,6 +39,14 @@ func main() {
 	// //router.HandleFunc("/usuario/{id}", middlewares.TokenVerifyMiddleware(controller.UsuarioGetOne(db))).Methods("GET")
 	// router.HandleFunc("/search/usuario", controller.Search(db)).Methods("GET").Queries("q", "{q}")
 
+	// UNIDADE URLs ===================================================
+
+	router.HandleFunc("/unidade", controller.UnidadeTodos(db)).Methods("GET")
+	router.HandleFunc("/unidade/inserir", controller.UnidadeInserir(db)).Methods("POST")
+	router.HandleFunc("/unidade/{id}", controller.UnidadeUnico(db)).Methods("GET")
+	// router.HandleFunc("/unidade/apagar/{id}", controller.UnidadeApagar(db)).Methods("DELETE")
+	// router.HandleFunc("/unidade/editar/{id}", controller.UnidadeEditar(db)).Methods("PUT")
+
 	// CORS ==========================================================
 
 	c := cors.New(cors.Options{
