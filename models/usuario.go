@@ -15,4 +15,5 @@ type Usuario struct {
 	Celular   string `json:"celular"`
 	Superuser bool   `json:"superuser"`
 	Ativo     bool   `json:"ativo"`
+	Novo      bool   `json:"novo"`
 }
