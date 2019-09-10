@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/user/vacaamarela/models"
-	"github.com/user/vacaamarela/utils"
+	"github.com/valentergs/vacaamarela/models"
+	"github.com/valentergs/vacaamarela/utils"
 )
 
 //Controller will be exported

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/user/vacaamarela/models"
+	"github.com/valentergs/vacaamarela/models"
 )
 
 //RespondWithError will be exported
