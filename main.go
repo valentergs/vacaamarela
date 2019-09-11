@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
-	"github.com/user/vacaamarela/controllers"
-	"github.com/user/vacaamarela/driver"
+	"github.com/valentergs/vacaamarela/controllers"
+	"github.com/valentergs/vacaamarela/driver"
 )
 
 var db *sql.DB

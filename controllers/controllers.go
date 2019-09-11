@@ -11,8 +11,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	"github.com/user/vacaamarela/models"
-	"github.com/user/vacaamarela/utils"
+	"github.com/valentergs/vacaamarela/models"
+	"github.com/valentergs/vacaamarela/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
