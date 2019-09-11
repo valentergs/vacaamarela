@@ -7,11 +7,13 @@ type Usuario struct {
 	Sobrenome string `json:"sobrenome"`
 	Email     string `json:"email"`
 	Senha     string `json:"senha"`
+	CPF       string `json:"cpf"`
 	Endereco  string `json:"endereco"`
 	Cidade    string `json:"cidade"`
 	Estado    string `json:"estado"`
-	CEP       int    `json:"cep"`
-	Celular   int    `json:"celular"`
+	CEP       string `json:"cep"`
+	Celular   string `json:"celular"`
 	Superuser bool   `json:"superuser"`
 	Ativo     bool   `json:"ativo"`
+	Novo      bool   `json:"novo"`
 }

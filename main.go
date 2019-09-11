@@ -7,6 +7,10 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+<<<<<<< HEAD
+=======
+	"github.com/rs/cors"
+>>>>>>> dev
 	"github.com/valentergs/vacaamarela/controllers"
 	"github.com/valentergs/vacaamarela/driver"
 )
@@ -20,30 +24,48 @@ func main() {
 
 	// gorilla.mux
 	router := mux.NewRouter()
+
+	// USUARIO URLs ===================================================
+
 	router.HandleFunc("/login", controller.Login(db)).Methods("POST")
+	router.HandleFunc("/logado", controller.Logado(db)).Methods("GET")
+	router.HandleFunc("/usuario", controller.UsuarioTodos(db)).Methods("GET")
+	router.HandleFunc("/usuario/inserir", controller.UsuarioInserir(db)).Methods("POST")
+	router.HandleFunc("/usuario/{id}", controller.UsuarioUnico(db)).Methods("GET")
+	router.HandleFunc("/usuario/apagar/{id}", controller.UsuarioApagar(db)).Methods("DELETE")
+	router.HandleFunc("/usuario/editar/{id}", controller.UsuarioEditar(db)).Methods("PUT")
+
+	// USUARIO com TokenVerification ===================================
+
 	// router.HandleFunc("/logged", controller.Logged(db)).Methods("GET")
-	// router.HandleFunc("/usuario/add", controller.UsuarioAdd(db)).Methods("POST")
 	// //router.HandleFunc("/usuario", middlewares.TokenVerifyMiddleware(controller.UsuarioGetAll(db))).Methods("GET")
-	// router.HandleFunc("/usuario", controller.UsuarioGetAll(db)).Methods("GET")
 	// //router.HandleFunc("/usuario/{id}", middlewares.TokenVerifyMiddleware(controller.UsuarioGetOne(db))).Methods("GET")
-	// router.HandleFunc("/usuario/{id}", controller.UsuarioGetOne(db)).Methods("GET")
 	// router.HandleFunc("/search/usuario", controller.Search(db)).Methods("GET").Queries("q", "{q}")
-	// router.HandleFunc("/usuario/delete/{id}", controller.UsuarioDeleteOne(db)).Methods("DELETE")
-	// router.HandleFunc("/usuario/edit/{id}", controller.UsuarioUpdate(db)).Methods("PUT")
 
-	// c := cors.New(cors.Options{
-	// 	AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
-	// 	AllowCredentials: true,
-	// 	// Enable Debugging for testing, consider disabling in production
-	// 	AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodOptions},
-	// 	AllowedHeaders: []string{"Authorization", "Content-Type"},
-	// 	Debug:          true,
-	// })
+	// UNIDADE URLs ===================================================
 
-	// // Insert the middleware
-	// handler := c.Handler(router)
+	router.HandleFunc("/unidade", controller.UnidadeTodos(db)).Methods("GET")
+	router.HandleFunc("/unidade/inserir", controller.UnidadeInserir(db)).Methods("POST")
+	router.HandleFunc("/unidade/{id}", controller.UnidadeUnico(db)).Methods("GET")
+	// router.HandleFunc("/unidade/apagar/{id}", controller.UnidadeApagar(db)).Methods("DELETE")
+	// router.HandleFunc("/unidade/editar/{id}", controller.UnidadeEditar(db)).Methods("PUT")
+
+	// CORS ==========================================================
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		AllowCredentials: true,
+		// Enable Debugging for testing, consider disabling in production
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodOptions},
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
+		Debug:          true,
+	})
+
+	// Insert the middleware
+	handler := c.Handler(router)
 
 	log.Println("Listen on port 8080...")
-	// Quando for usar o CORS colocar "handler" no lugar do "router"
-	log.Fatal(http.ListenAndServe(":8080", router))
+	// Quando  usar o CORS colocar "handler" no lugar do "router"
+	// Quando usar ROUTER usar "router"
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
