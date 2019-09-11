@@ -7,10 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
-<<<<<<< HEAD
-=======
 	"github.com/rs/cors"
->>>>>>> dev
 	"github.com/valentergs/vacaamarela/controllers"
 	"github.com/valentergs/vacaamarela/driver"
 )

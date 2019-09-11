@@ -9,16 +9,11 @@ import (
 	"strconv"
 	"strings"
 
-<<<<<<< HEAD
-	"github.com/valentergs/vacaamarela/models"
-	"github.com/valentergs/vacaamarela/utils"
-=======
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/valentergs/vacaamarela/models"
 	"github.com/valentergs/vacaamarela/utils"
 	"golang.org/x/crypto/bcrypt"
->>>>>>> dev
 )
 
 //Controller será exportado
