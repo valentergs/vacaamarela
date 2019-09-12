@@ -15,7 +15,7 @@ func ConnectDB() *sql.DB {
 	const (
 		user     = "rodrigovalente"
 		password = "Gustavo2012"
-		host     = "localhost"
+		host     = "172.17.0.3"
 		port     = 5432
 		dbname   = "vacaamarela"
 	)
