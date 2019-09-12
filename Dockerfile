@@ -1,8 +1,14 @@
-FROM golang:1.12
-WORKDIR /go/src/app
-COPY . .
+# FROM golang:1.12
+# WORKDIR /go/src/app
+# COPY /main .
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+# RUN go get -d -v ./...
+# RUN go install -v ./...
 
-#CMD ["app"]
+# CMD ["/main"]
+
+FROM golang:alpine
+
+ADD main /
+
+CMD ["/main"]
