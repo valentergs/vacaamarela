@@ -45,7 +45,7 @@ func main() {
 	router.HandleFunc("/unidade/inserir", controller.UnidadeInserir(db)).Methods("POST")
 	router.HandleFunc("/unidade/{id}", controller.UnidadeUnico(db)).Methods("GET")
 	router.HandleFunc("/unidade/apagar/{id}", controller.UnidadeApagar(db)).Methods("DELETE")
-	// router.HandleFunc("/unidade/editar/{id}", controller.UnidadeEditar(db)).Methods("PUT")
+	router.HandleFunc("/unidade/editar/{id}", controller.UnidadeEditar(db)).Methods("PUT")
 
 	// CORS ==========================================================
 

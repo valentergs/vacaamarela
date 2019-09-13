@@ -490,3 +490,40 @@ func (c Controller) UnidadeApagar(db *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+//UnidadeEditar será exportado =========================================
+func (c Controller) UnidadeEditar(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var unidade models.Unidade
+		var error models.Error
+
+		if r.Method != "PUT" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
+
+		json.NewDecoder(r.Body).Decode(&unidade)
+
+		expressaoSQL := `UPDATE unidade SET nome=$1, endereco=$2, cidade=$3, estado=$4, cep=$5, ativa=$6 WHERE unidade_id=$7;`
+		_, err = db.Exec(expressaoSQL, unidade.Nome, unidade.Endereco, unidade.Cidade, unidade.Estado, unidade.CEP, unidade.Ativa, id)
+		if err != nil {
+			panic(err)
+		}
+
+		row := db.QueryRow("select * from unidade where unidade_id=$1;", id)
+		err = row.Scan(&unidade.ID, &unidade.Nome, &unidade.Endereco, &unidade.Cidade, &unidade.Estado, &unidade.CEP, &unidade.Ativa)
+
+		w.Header().Set("Content-Type", "application/json")
+
+		utils.ResponseJSON(w, unidade)
+
+	}
+}
