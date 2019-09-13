@@ -1,0 +1,37 @@
+XXXXXXXXXX Criar ambiente Docker
+
+Criar binario Golang
+$ GOOS=linux GOARCH=amd64 go build -o main .
+
+Criar Imagem do Golang
+$ docker build -t govaca
+
+Criar Container do Golang
+$ docker run -p 8080:8080 govaca
+
+Criar Container do Postgres
+$ docker run --name psqlvaca -e POSTGRES_USER=rodrigovalente -e POSTGRES_PASSWORD=Gustavo2012 -d -p 5432:5432 postgres:alpine
+
+Atualizar driver.go...
+para rodar SEM docker: host: "localhost"
+para rodar COM docker: host: "172.17.0.3"
+
+Criar usuario no Postman
+
+http://localhost:8080/usuario/inserir
+
+{
+	"nome": "Eduardo",
+	"sobrenome": "Valente",
+	"email": "eduardo@gmail.com",
+	"senha": "Gustavo2012",
+	"cpf": "11122233377",
+	"endereco": "Rubi, 12",
+	"cidade": "Sao Paulo",
+	"estado": "SP",
+	"cep": "12345678",
+	"celular": "11945674321",
+	"Superuser": false,
+	"Ativo": false,
+	"Novo": true
+}

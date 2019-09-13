@@ -15,9 +15,12 @@ func ConnectDB() *sql.DB {
 	const (
 		user     = "rodrigovalente"
 		password = "Gustavo2012"
-		host     = "172.17.0.3"
-		port     = 5432
-		dbname   = "vacaamarela"
+		// Quando rodar dentro do container Docker
+		// host = "172.17.0.3"
+		// Quando rodar sem Docker
+		host   = "localhost"
+		port   = 5432
+		dbname = "vacaamarela"
 	)
 
 	psqlInfo := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", user, password, host, port, dbname)
