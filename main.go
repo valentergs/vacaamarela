@@ -20,6 +20,7 @@ func main() {
 	db := driver.ConnectDB()
 	usuarioctl := controllers.ControllerUsuario{}
 	unidadectl := controllers.ControllerUnidade{}
+	spotctl := controllers.ControllerSpot{}
 
 	// gorilla.mux
 	router := mux.NewRouter()
@@ -48,6 +49,10 @@ func main() {
 	router.HandleFunc("/unidade/{id}", unidadectl.UnidadeUnico(db)).Methods("GET")
 	router.HandleFunc("/unidade/apagar/{id}", unidadectl.UnidadeApagar(db)).Methods("DELETE")
 	router.HandleFunc("/unidade/editar/{id}", unidadectl.UnidadeEditar(db)).Methods("PUT")
+
+	// SPOT URLs ===================================================
+
+	router.HandleFunc("/spot", spotctl.SpotTodos(db)).Methods("GET")
 
 	// CORS ==========================================================
 
