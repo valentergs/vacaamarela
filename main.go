@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
+
 	"github.com/valentergs/vacaamarela/controllers"
 	"github.com/valentergs/vacaamarela/driver"
 )
@@ -17,20 +18,21 @@ var db *sql.DB
 func main() {
 
 	db := driver.ConnectDB()
-	controller := controllers.Controller{}
+	usuarioctl := controllers.ControllerUsuario{}
+	unidadectl := controllers.ControllerUnidade{}
 
 	// gorilla.mux
 	router := mux.NewRouter()
 
 	// USUARIO URLs ===================================================
 
-	router.HandleFunc("/login", controller.Login(db)).Methods("POST")
-	router.HandleFunc("/logado", controller.Logado(db)).Methods("GET")
-	router.HandleFunc("/usuario", controller.UsuarioTodos(db)).Methods("GET")
-	router.HandleFunc("/usuario/inserir", controller.UsuarioInserir(db)).Methods("POST")
-	router.HandleFunc("/usuario/{id}", controller.UsuarioUnico(db)).Methods("GET")
-	router.HandleFunc("/usuario/apagar/{id}", controller.UsuarioApagar(db)).Methods("DELETE")
-	router.HandleFunc("/usuario/editar/{id}", controller.UsuarioEditar(db)).Methods("PUT")
+	router.HandleFunc("/login", usuarioctl.Login(db)).Methods("POST")
+	router.HandleFunc("/logado", usuarioctl.Logado(db)).Methods("GET")
+	router.HandleFunc("/usuario", usuarioctl.UsuarioTodos(db)).Methods("GET")
+	router.HandleFunc("/usuario/inserir", usuarioctl.UsuarioInserir(db)).Methods("POST")
+	router.HandleFunc("/usuario/{id}", usuarioctl.UsuarioUnico(db)).Methods("GET")
+	router.HandleFunc("/usuario/apagar/{id}", usuarioctl.UsuarioApagar(db)).Methods("DELETE")
+	router.HandleFunc("/usuario/editar/{id}", usuarioctl.UsuarioEditar(db)).Methods("PUT")
 
 	// USUARIO com TokenVerification ===================================
 
@@ -41,11 +43,11 @@ func main() {
 
 	// UNIDADE URLs ===================================================
 
-	router.HandleFunc("/unidade", controller.UnidadeTodos(db)).Methods("GET")
-	router.HandleFunc("/unidade/inserir", controller.UnidadeInserir(db)).Methods("POST")
-	router.HandleFunc("/unidade/{id}", controller.UnidadeUnico(db)).Methods("GET")
-	router.HandleFunc("/unidade/apagar/{id}", controller.UnidadeApagar(db)).Methods("DELETE")
-	router.HandleFunc("/unidade/editar/{id}", controller.UnidadeEditar(db)).Methods("PUT")
+	router.HandleFunc("/unidade", unidadectl.UnidadeTodos(db)).Methods("GET")
+	router.HandleFunc("/unidade/inserir", unidadectl.UnidadeInserir(db)).Methods("POST")
+	router.HandleFunc("/unidade/{id}", unidadectl.UnidadeUnico(db)).Methods("GET")
+	router.HandleFunc("/unidade/apagar/{id}", unidadectl.UnidadeApagar(db)).Methods("DELETE")
+	router.HandleFunc("/unidade/editar/{id}", unidadectl.UnidadeEditar(db)).Methods("PUT")
 
 	// CORS ==========================================================
 
