@@ -460,3 +460,33 @@ func (c Controller) UnidadeUnico(db *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+//UnidadeApagar será exportado =========================================
+func (c Controller) UnidadeApagar(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var error models.Error
+
+		if r.Method != "DELETE" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Params são os valores informados pelo usuario no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
+
+		db.QueryRow("DELETE FROM unidade where unidade_id=$1;", id)
+
+		SuccessMessage := "Unidade deletada com sucesso!"
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		utils.ResponseJSON(w, SuccessMessage)
+
+	}
+}
