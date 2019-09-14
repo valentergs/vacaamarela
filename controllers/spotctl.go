@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -12,33 +13,35 @@ import (
 //ControllerSpot será exportado
 type ControllerSpot struct{}
 
-// //UnidadeInserir será exportado ===========================================
-// func (c ControllerUnidade) UnidadeInserir(db *sql.DB) http.HandlerFunc {
+//SpotInserir será exportado ===========================================
+func (c ControllerSpot) SpotInserir(db *sql.DB) http.HandlerFunc {
 
-// 	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		var unidade models.Unidade
+		var spot models.Spot
 
-// 		json.NewDecoder(r.Body).Decode(&unidade)
+		json.NewDecoder(r.Body).Decode(&spot)
 
-// 		expressaoSQL := `INSERT INTO unidade (nome, endereco, cidade, estado, cep, ativa, novo) values ($1,$2,$3,$4,$5,$6,$7);`
-// 		_, err := db.Exec(expressaoSQL, unidade.Nome, unidade.Endereco, unidade.Cidade, unidade.Estado, unidade.CEP, unidade.Ativa)
-// 		if err != nil {
-// 			panic(err)
-// 		}
+		expressaoSQL := `INSERT INTO spot (unidade, tipo, livre) values ($1,$2,$3);`
+		_, err := db.Exec(expressaoSQL, spot.Unidade, spot.Tipo, spot.Livre)
+		if err != nil {
+			panic(err)
+		}
 
-// 		row := db.QueryRow("SELECT * FROM unidade WHERE nome=$1;", unidade.Nome)
-// 		err = row.Scan(&unidade.ID, &unidade.Nome, &unidade.Endereco, &unidade.Cidade, &unidade.Estado, &unidade.CEP, &unidade.Ativa)
-// 		if err != nil {
-// 			panic(err)
-// 		}
+		// row := db.QueryRow("SELECT * FROM spot WHERE spot_id=$1;", spot.ID)
+		// err = row.Scan(&spot.ID, &spot.Unidade, &spot.Tipo, &spot.Livre)
+		// if err != nil {
+		// 	panic(err)
+		// }
 
-// 		w.Header().Set("Content-Type", "application/json")
+		SuccessMessage := "Spot inserido com sucesso!"
 
-// 		utils.ResponseJSON(w, unidade)
+		w.Header().Set("Content-Type", "application/json")
 
-// 	}
-// }
+		utils.ResponseJSON(w, SuccessMessage)
+
+	}
+}
 
 //SpotTodos será exportado =======================================
 func (c ControllerSpot) SpotTodos(db *sql.DB) http.HandlerFunc {
