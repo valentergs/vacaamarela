@@ -86,7 +86,7 @@ func (c ControllerSpot) SpotTodos(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// //SpotUnico será exportado ==================================
+//SpotUnico será exportado ==================================
 func (c ControllerSpot) SpotUnico(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -126,35 +126,35 @@ func (c ControllerSpot) SpotUnico(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// //UnidadeApagar será exportado =========================================
-// func (c ControllerUnidade) UnidadeApagar(db *sql.DB) http.HandlerFunc {
+//SpotApagar será exportado =========================================
+func (c ControllerSpot) SpotApagar(db *sql.DB) http.HandlerFunc {
 
-// 	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		var error models.Error
+		var error models.Error
 
-// 		if r.Method != "DELETE" {
-// 			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 			return
-// 		}
+		if r.Method != "DELETE" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
 
-// 		// Params são os valores informados pelo usuario no URL
-// 		params := mux.Vars(r)
-// 		id, err := strconv.Atoi(params["id"])
-// 		if err != nil {
-// 			error.Message = "Numero ID inválido"
-// 		}
+		// Params são os valores informados pelo usuario no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
 
-// 		db.QueryRow("DELETE FROM unidade where unidade_id=$1;", id)
+		db.QueryRow("DELETE FROM spot where spot_id=$1;", id)
 
-// 		SuccessMessage := "Unidade deletada com sucesso!"
+		SuccessMessage := "Spot deletado com sucesso!"
 
-// 		w.Header().Set("Content-Type", "application/json")
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		utils.ResponseJSON(w, SuccessMessage)
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		utils.ResponseJSON(w, SuccessMessage)
 
-// 	}
-// }
+	}
+}
 
 // //UnidadeEditar será exportado =========================================
 // func (c ControllerUnidade) UnidadeEditar(db *sql.DB) http.HandlerFunc {
