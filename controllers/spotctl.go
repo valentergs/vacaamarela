@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/valentergs/vacaamarela/models"
 	"github.com/valentergs/vacaamarela/utils"
 )
@@ -27,12 +29,6 @@ func (c ControllerSpot) SpotInserir(db *sql.DB) http.HandlerFunc {
 		if err != nil {
 			panic(err)
 		}
-
-		// row := db.QueryRow("SELECT * FROM spot WHERE spot_id=$1;", spot.ID)
-		// err = row.Scan(&spot.ID, &spot.Unidade, &spot.Tipo, &spot.Livre)
-		// if err != nil {
-		// 	panic(err)
-		// }
 
 		SuccessMessage := "Spot inserido com sucesso!"
 
@@ -90,45 +86,45 @@ func (c ControllerSpot) SpotTodos(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// //UnidadeUnico será exportado ==================================
-// func (c ControllerUnidade) UnidadeUnico(db *sql.DB) http.HandlerFunc {
+// //SpotUnico será exportado ==================================
+func (c ControllerSpot) SpotUnico(db *sql.DB) http.HandlerFunc {
 
-// 	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		var error models.Error
-// 		var unidade models.Unidade
+		var error models.Error
+		var spot models.Spot
 
-// 		if r.Method != "GET" {
-// 			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 			return
-// 		}
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
 
-// 		// Params são os valores informados pelo unidade no URL
-// 		params := mux.Vars(r)
-// 		id, err := strconv.Atoi(params["id"])
-// 		if err != nil {
-// 			error.Message = "Numero ID inválido"
-// 		}
+		// Params são os valores informados pelo spot no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
 
-// 		// O ID usaso neste argumento traz o valor inserido no Params
-// 		row := db.QueryRow("select * from unidade where unidade_id=$1;", id)
+		// O ID usaso neste argumento traz o valor inserido no Params
+		row := db.QueryRow("select * from spot where spot_id=$1;", id)
 
-// 		err = row.Scan(&unidade.ID, &unidade.Nome, &unidade.Endereco, &unidade.Cidade, &unidade.Estado, &unidade.CEP, &unidade.Ativa)
-// 		if err != nil {
-// 			if err == sql.ErrNoRows {
-// 				error.Message = "Unidade inexistente"
-// 				utils.RespondWithError(w, http.StatusBadRequest, error)
-// 				return
-// 			} else {
-// 				log.Fatal(err)
-// 			}
-// 		}
+		err = row.Scan(&spot.ID, &spot.Unidade, &spot.Tipo, &spot.Livre)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				error.Message = "Spot inexistente"
+				utils.RespondWithError(w, http.StatusBadRequest, error)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
 
-// 		w.Header().Set("Content-Type", "application/json")
-// 		utils.ResponseJSON(w, unidade)
+		w.Header().Set("Content-Type", "application/json")
+		utils.ResponseJSON(w, spot)
 
-// 	}
-// }
+	}
+}
 
 // //UnidadeApagar será exportado =========================================
 // func (c ControllerUnidade) UnidadeApagar(db *sql.DB) http.HandlerFunc {

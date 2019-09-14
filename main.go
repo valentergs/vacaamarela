@@ -54,6 +54,7 @@ func main() {
 
 	router.HandleFunc("/spot", spotctl.SpotTodos(db)).Methods("GET")
 	router.HandleFunc("/spot/inserir", spotctl.SpotInserir(db)).Methods("POST")
+	router.HandleFunc("/spot/{id}", spotctl.SpotUnico(db)).Methods("GET")
 
 	// CORS ==========================================================
 
