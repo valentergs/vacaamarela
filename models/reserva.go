@@ -1,19 +1,3 @@
-// package models
-
-// import "time"
-
-// //Timestamp will be exported
-// type Timestamp time.Time
-
-// //Reserva is an exportable type
-// type Reserva struct {
-// 	ID         int       `json:"reserva_id"`
-// 	Usuario    int       `json:"usuario"`
-// 	Spot       int       `json:"spot"`
-// 	HoraInicio Timestamp `json:"hora_inicio"`
-// 	HoraFim    Timestamp `json:"hora_fim"`
-// }
-
 package models
 
 import (

@@ -85,6 +85,54 @@ func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+//ReservaAberta será exportado =======================================
+func (c ControllerReserva) ReservaAberta(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var error models.Error
+
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		rows, err := db.Query("SELECT * FROM reserva WHERE hora_fim is null;")
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+
+		defer rows.Close()
+
+		clts := make([]models.Reserva, 0)
+		for rows.Next() {
+			clt := models.Reserva{}
+			err := rows.Scan(&clt.ID, &clt.Usuario, &clt.Spot, &clt.HoraInicio, &clt.HoraFim)
+			if err != nil {
+				http.Error(w, http.StatusText(500), 500)
+				fmt.Println(err)
+				return
+			}
+			clts = append(clts, clt)
+		}
+		if err != nil {
+			if err == sql.ErrNoRows {
+				error.Message = "Reserva inexistente"
+				utils.RespondWithError(w, http.StatusBadRequest, error)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		utils.ResponseJSON(w, clts)
+	}
+}
+
 // //SpotUnico será exportado ==================================
 // func (c ControllerSpot) SpotUnico(db *sql.DB) http.HandlerFunc {
 
