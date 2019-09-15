@@ -21,6 +21,7 @@ func main() {
 	usuarioctl := controllers.ControllerUsuario{}
 	unidadectl := controllers.ControllerUnidade{}
 	spotctl := controllers.ControllerSpot{}
+	reservactl := controllers.ControllerReserva{}
 
 	// gorilla.mux
 	router := mux.NewRouter()
@@ -57,6 +58,10 @@ func main() {
 	router.HandleFunc("/spot/{id}", spotctl.SpotUnico(db)).Methods("GET")
 	router.HandleFunc("/spot/apagar/{id}", spotctl.SpotApagar(db)).Methods("DELETE")
 	router.HandleFunc("/spot/editar/{id}", spotctl.SpotEditar(db)).Methods("PUT")
+
+	// RESERVA URLs ===================================================
+
+	router.HandleFunc("/reserva", reservactl.ReservaTodos(db)).Methods("GET")
 
 	// CORS ==========================================================
 
