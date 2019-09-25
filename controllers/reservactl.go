@@ -52,7 +52,13 @@ func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.Query("select * from reserva")
+		//rows, err := db.Query("select * from reserva")
+		rows, err := db.Query(`SELECT reserva.reserva_id, usuario.nome, sobrenome, unidade.nome AS unidade, tipo, hora_inicio
+		FROM reserva
+		INNER JOIN usuario ON usuario.usuario_id = reserva.usuario
+		INNER JOIN spot ON spot.spot_id = reserva.spot
+		INNER JOIN unidade ON unidade.unidade_id = spot.unidade
+		ORDER BY usuario.nome`)
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
 			return
@@ -60,10 +66,12 @@ func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
 
 		defer rows.Close()
 
-		clts := make([]models.Reserva, 0)
+		// Usar models.Reserva com para pesquisa pura, sem INNER JOIN.
+		// Usar models.ReservaJoin para incluir pesquisa com INNER JOIN, incluindo tabelas "usuario", "spot" e "unidade"
+		clts := make([]models.ReservaJoin, 0)
 		for rows.Next() {
-			clt := models.Reserva{}
-			err := rows.Scan(&clt.ID, &clt.Usuario, &clt.Spot, &clt.HoraInicio, &clt.HoraFim)
+			clt := models.ReservaJoin{}
+			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Unidade, &clt.Tipo, &clt.HoraInicio)
 			if err != nil {
 				http.Error(w, http.StatusText(500), 500)
 				fmt.Println(err)
