@@ -63,6 +63,9 @@ func main() {
 
 	router.HandleFunc("/reserva", reservactl.ReservaTodos(db)).Methods("GET")
 	router.HandleFunc("/reserva/aberta", reservactl.ReservaAberta(db)).Methods("GET")
+	router.HandleFunc("/reserva/inserir", reservactl.ReservaInserir(db)).Methods("POST")
+	router.HandleFunc("/reserva/{id}", reservactl.ReservaUnico(db)).Methods("GET")
+	router.HandleFunc("/reserva/apagar/{id}", reservactl.ReservaApagar(db)).Methods("DELETE")
 
 	// CORS ==========================================================
 

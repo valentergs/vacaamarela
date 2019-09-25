@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/valentergs/vacaamarela/models"
 	"github.com/valentergs/vacaamarela/utils"
 )
@@ -13,29 +16,29 @@ import (
 //ControllerReserva será exportado
 type ControllerReserva struct{}
 
-// //SpotInserir será exportado ===========================================
-// func (c ControllerReserva) SpotInserir(db *sql.DB) http.HandlerFunc {
+//ReservaInserir será exportado ===========================================
+func (c ControllerReserva) ReservaInserir(db *sql.DB) http.HandlerFunc {
 
-// 	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		var spot models.Spot
+		var reserva models.Reserva
 
-// 		json.NewDecoder(r.Body).Decode(&spot)
+		json.NewDecoder(r.Body).Decode(&reserva)
 
-// 		expressaoSQL := `INSERT INTO spot (unidade, tipo, livre) values ($1,$2,$3);`
-// 		_, err := db.Exec(expressaoSQL, spot.Unidade, spot.Tipo, spot.Livre)
-// 		if err != nil {
-// 			panic(err)
-// 		}
+		expressaoSQL := `INSERT INTO reserva (usuario, spot) values ($1,$2);`
+		_, err := db.Exec(expressaoSQL, reserva.Usuario, reserva.Spot)
+		if err != nil {
+			panic(err)
+		}
 
-// 		SuccessMessage := "Spot inserido com sucesso!"
+		SuccessMessage := "Reserva criada com sucesso!"
 
-// 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 
-// 		utils.ResponseJSON(w, SuccessMessage)
+		utils.ResponseJSON(w, SuccessMessage)
 
-// 	}
-// }
+	}
+}
 
 //ReservaTodos será exportado =======================================
 func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
@@ -133,75 +136,100 @@ func (c ControllerReserva) ReservaAberta(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// //SpotUnico será exportado ==================================
-// func (c ControllerSpot) SpotUnico(db *sql.DB) http.HandlerFunc {
+//ReservaUnico será exportado ==================================
+func (c ControllerReserva) ReservaUnico(db *sql.DB) http.HandlerFunc {
 
-// 	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		var error models.Error
-// 		var spot models.Spot
+		var error models.Error
+		//var reserva models.Reserva
 
-// 		if r.Method != "GET" {
-// 			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 			return
-// 		}
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
 
-// 		// Params são os valores informados pelo spot no URL
-// 		params := mux.Vars(r)
-// 		id, err := strconv.Atoi(params["id"])
-// 		if err != nil {
-// 			error.Message = "Numero ID inválido"
-// 		}
+		// Params são os valores informados pelo spot no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
 
-// 		// O ID usaso neste argumento traz o valor inserido no Params
-// 		row := db.QueryRow("select * from spot where spot_id=$1;", id)
+		// O ID usaso neste argumento traz o valor inserido no Params
+		rows, err := db.Query("select * from reserva where reserva_id=$1;", id)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
 
-// 		err = row.Scan(&spot.ID, &spot.Unidade, &spot.Tipo, &spot.Livre)
-// 		if err != nil {
-// 			if err == sql.ErrNoRows {
-// 				error.Message = "Spot inexistente"
-// 				utils.RespondWithError(w, http.StatusBadRequest, error)
-// 				return
-// 			} else {
-// 				log.Fatal(err)
-// 			}
-// 		}
+		// err = row.Scan(&reserva.ID, &reserva.Usuario, &reserva.Spot, &reserva.HoraInicio, &reserva.HoraFim)
+		// if err != nil {
+		// 	if err == sql.ErrNoRows {
+		// 		error.Message = "Reserva inexistente"
+		// 		utils.RespondWithError(w, http.StatusBadRequest, error)
+		// 		return
+		// 	} else {
+		// 		log.Fatal(err)
+		// 	}
+		// }
 
-// 		w.Header().Set("Content-Type", "application/json")
-// 		utils.ResponseJSON(w, spot)
+		clts := make([]models.Reserva, 0)
+		for rows.Next() {
+			clt := models.Reserva{}
+			err := rows.Scan(&clt.ID, &clt.Usuario, &clt.Spot, &clt.HoraInicio, &clt.HoraFim)
+			if err != nil {
+				http.Error(w, http.StatusText(500), 500)
+				fmt.Println(err)
+				return
+			}
+			clts = append(clts, clt)
+		}
+		if err != nil {
+			if err == sql.ErrNoRows {
+				error.Message = "Reserva inexistente"
+				utils.RespondWithError(w, http.StatusBadRequest, error)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
 
-// 	}
-// }
+		w.Header().Set("Content-Type", "application/json")
+		utils.ResponseJSON(w, clts)
 
-// //SpotApagar será exportado =========================================
-// func (c ControllerSpot) SpotApagar(db *sql.DB) http.HandlerFunc {
+	}
+}
 
-// 	return func(w http.ResponseWriter, r *http.Request) {
+//ReservaApagar será exportado =========================================
+func (c ControllerReserva) ReservaApagar(db *sql.DB) http.HandlerFunc {
 
-// 		var error models.Error
+	return func(w http.ResponseWriter, r *http.Request) {
 
-// 		if r.Method != "DELETE" {
-// 			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 			return
-// 		}
+		var error models.Error
 
-// 		// Params são os valores informados pelo usuario no URL
-// 		params := mux.Vars(r)
-// 		id, err := strconv.Atoi(params["id"])
-// 		if err != nil {
-// 			error.Message = "Numero ID inválido"
-// 		}
+		if r.Method != "DELETE" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
 
-// 		db.QueryRow("DELETE FROM spot where spot_id=$1;", id)
+		// Params são os valores informados pelo usuario no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
 
-// 		SuccessMessage := "Spot deletado com sucesso!"
+		db.QueryRow("DELETE FROM reserva where reserva_id=$1;", id)
 
-// 		w.Header().Set("Content-Type", "application/json")
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		utils.ResponseJSON(w, SuccessMessage)
+		SuccessMessage := "Reserva deletada com sucesso!"
 
-// 	}
-// }
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		utils.ResponseJSON(w, SuccessMessage)
+
+	}
+}
 
 // //SpotEditar será exportado =========================================
 // func (c ControllerSpot) SpotEditar(db *sql.DB) http.HandlerFunc {
