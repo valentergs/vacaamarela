@@ -95,54 +95,6 @@ func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-//ReservaAberta será exportado =======================================
-func (c ControllerReserva) ReservaAberta(db *sql.DB) http.HandlerFunc {
-
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		var error models.Error
-
-		if r.Method != "GET" {
-			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-			return
-		}
-
-		rows, err := db.Query("SELECT * FROM reserva WHERE hora_fim is null;")
-		if err != nil {
-			http.Error(w, http.StatusText(500), 500)
-			return
-		}
-
-		defer rows.Close()
-
-		clts := make([]models.Reserva, 0)
-		for rows.Next() {
-			clt := models.Reserva{}
-			err := rows.Scan(&clt.ID, &clt.Usuario, &clt.Spot, &clt.HoraInicio, &clt.HoraFim)
-			if err != nil {
-				http.Error(w, http.StatusText(500), 500)
-				fmt.Println(err)
-				return
-			}
-			clts = append(clts, clt)
-		}
-		if err != nil {
-			if err == sql.ErrNoRows {
-				error.Message = "Reserva inexistente"
-				utils.RespondWithError(w, http.StatusBadRequest, error)
-				return
-			} else {
-				log.Fatal(err)
-			}
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
-		utils.ResponseJSON(w, clts)
-	}
-}
-
 //ReservaUnico será exportado ==================================
 func (c ControllerReserva) ReservaUnico(db *sql.DB) http.HandlerFunc {
 
@@ -164,7 +116,12 @@ func (c ControllerReserva) ReservaUnico(db *sql.DB) http.HandlerFunc {
 		}
 
 		// O ID usaso neste argumento traz o valor inserido no Params
-		rows, err := db.Query("select * from reserva where reserva_id=$1;", id)
+		rows, err := db.Query(`SELECT reserva.reserva_id, usuario.nome, sobrenome, unidade.nome AS unidade, spot_id AS spot, tipo AS tipo_de_spot, hora_inicio AS inicio, hora_fim AS fim
+		FROM reserva
+		INNER JOIN usuario ON usuario.usuario_id = reserva.usuario
+		INNER JOIN spot ON spot.spot_id = reserva.spot
+		INNER JOIN unidade ON unidade.unidade_id = spot.unidade
+		WHERE reserva_id = $1;`, id)
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
 			return
@@ -181,10 +138,10 @@ func (c ControllerReserva) ReservaUnico(db *sql.DB) http.HandlerFunc {
 		// 	}
 		// }
 
-		clts := make([]models.Reserva, 0)
+		clts := make([]models.ReservaJoin, 0)
 		for rows.Next() {
-			clt := models.Reserva{}
-			err := rows.Scan(&clt.ID, &clt.Usuario, &clt.Spot, &clt.HoraInicio, &clt.HoraFim)
+			clt := models.ReservaJoin{}
+			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Unidade, &clt.Spot, &clt.Tipo, &clt.HoraInicio, &clt.HoraFim)
 			if err != nil {
 				http.Error(w, http.StatusText(500), 500)
 				fmt.Println(err)
@@ -238,4 +195,32 @@ func (c ControllerReserva) ReservaApagar(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-// Criar RESER FECHAR
+//ReservaEncerrar será exportado =========================================
+func (c ControllerReserva) ReservaEncerrar(db *sql.DB) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var error models.Error
+
+		if r.Method != "PUT" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Params são os valores informados pelo usuario no URL
+		params := mux.Vars(r)
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			error.Message = "Numero ID inválido"
+		}
+
+		db.QueryRow(`UPDATE reserva SET hora_fim = Now() WHERE reserva_id=$1;`, id)
+
+		SuccessMessage := "Reserva encerrada com sucesso!"
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		utils.ResponseJSON(w, SuccessMessage)
+
+	}
+}
