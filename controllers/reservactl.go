@@ -53,12 +53,11 @@ func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
 		}
 
 		//rows, err := db.Query("select * from reserva")
-		rows, err := db.Query(`SELECT reserva.reserva_id, usuario.nome, sobrenome, unidade.nome AS unidade, tipo, hora_inicio
+		rows, err := db.Query(`SELECT reserva.reserva_id, usuario.nome, sobrenome, unidade.nome AS unidade, spot_id AS spot, tipo AS tipo_de_spot, hora_inicio, hora_fim
 		FROM reserva
 		INNER JOIN usuario ON usuario.usuario_id = reserva.usuario
 		INNER JOIN spot ON spot.spot_id = reserva.spot
-		INNER JOIN unidade ON unidade.unidade_id = spot.unidade
-		ORDER BY usuario.nome`)
+		INNER JOIN unidade ON unidade.unidade_id = spot.unidade`)
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
 			return
@@ -71,7 +70,7 @@ func (c ControllerReserva) ReservaTodos(db *sql.DB) http.HandlerFunc {
 		clts := make([]models.ReservaJoin, 0)
 		for rows.Next() {
 			clt := models.ReservaJoin{}
-			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Unidade, &clt.Tipo, &clt.HoraInicio)
+			err := rows.Scan(&clt.ID, &clt.Nome, &clt.Sobrenome, &clt.Unidade, &clt.Spot, &clt.Tipo, &clt.HoraInicio, &clt.HoraFim)
 			if err != nil {
 				http.Error(w, http.StatusText(500), 500)
 				fmt.Println(err)
@@ -238,3 +237,5 @@ func (c ControllerReserva) ReservaApagar(db *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+// Criar RESER FECHAR
