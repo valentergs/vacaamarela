@@ -14,7 +14,7 @@ type NullTime2 struct {
 
 //ReservaJoin is an exportable type
 type ReservaJoin struct {
-	ID         int       `json:"reserva"`
+	ID         int       `json:"reserva_id"`
 	Nome       string    `json:"nome"`
 	Sobrenome  string    `json:"sobrenome"`
 	Unidade    string    `json:"unidade"`
