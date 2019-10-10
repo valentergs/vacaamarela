@@ -54,10 +54,10 @@ func main() {
 	// SPOT URLs ===================================================
 
 	router.HandleFunc("/spot", spotctl.SpotTodos(db)).Methods("GET")
-	router.HandleFunc("/spot/inserir", spotctl.SpotInserir(db)).Methods("POST")
+	// router.HandleFunc("/spot/inserir", spotctl.SpotInserir(db)).Methods("POST")
 	router.HandleFunc("/spot/{id}", spotctl.SpotUnico(db)).Methods("GET")
-	router.HandleFunc("/spot/apagar/{id}", spotctl.SpotApagar(db)).Methods("DELETE")
-	router.HandleFunc("/spot/editar/{id}", spotctl.SpotEditar(db)).Methods("PUT")
+	// router.HandleFunc("/spot/apagar/{id}", spotctl.SpotApagar(db)).Methods("DELETE")
+	// router.HandleFunc("/spot/editar/{id}", spotctl.SpotEditar(db)).Methods("PUT")
 
 	// RESERVA URLs ===================================================
 
