@@ -11,4 +11,5 @@ type Spot struct {
 	Width     string `json:"width"`
 	Y         string `json:"y"`
 	X         string `json:"x"`
+	Transform string `json:"transform"`
 }

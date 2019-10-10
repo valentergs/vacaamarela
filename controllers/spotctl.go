@@ -61,7 +61,7 @@ func (c ControllerSpot) SpotTodos(db *sql.DB) http.HandlerFunc {
 		clts := make([]models.Spot, 0)
 		for rows.Next() {
 			clt := models.Spot{}
-			err := rows.Scan(&clt.ID, &clt.Unidade, &clt.Tipo, &clt.Livre, &clt.Bloqueado, &clt.Height, &clt.Width, &clt.Y, &clt.X)
+			err := rows.Scan(&clt.ID, &clt.Unidade, &clt.Tipo, &clt.Livre, &clt.Bloqueado, &clt.Height, &clt.Width, &clt.Y, &clt.X, &clt.Transform)
 			if err != nil {
 				http.Error(w, http.StatusText(500), 500)
 				return
@@ -108,7 +108,7 @@ func (c ControllerSpot) SpotUnico(db *sql.DB) http.HandlerFunc {
 		// O ID usaso neste argumento traz o valor inserido no Params
 		row := db.QueryRow("select * from spot where spot_id=$1;", id)
 
-		err = row.Scan(&spot.ID, &spot.Unidade, &spot.Tipo, &spot.Livre, &spot.Bloqueado, &spot.Height, &spot.Width, &spot.Y, &spot.X)
+		err = row.Scan(&spot.ID, &spot.Unidade, &spot.Tipo, &spot.Livre, &spot.Bloqueado, &spot.Height, &spot.Width, &spot.Y, &spot.X, &spot.Transform)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				error.Message = "Spot inexistente"
